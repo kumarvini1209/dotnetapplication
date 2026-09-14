@@ -55,6 +55,9 @@ jobs:
       contents: read
       id-token: write
 
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,11 +67,22 @@ jobs:
         with:
           terraform_version: "1.15.5"
 
+      - name: Check AWS role configuration
+        env:
+          AWS_ROLE_TO_ASSUME: ${{ vars.AWS_ROLE_TO_ASSUME }}
+        run: |
+          if [ -z "$AWS_ROLE_TO_ASSUME" ]; then
+            echo "AWS_ROLE_TO_ASSUME is missing from the terraform environment variables."
+            exit 1
+          fi
+          echo "AWS role configuration is present."
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActionsTerraform
 
       - name: Initialize Terraform
         run: terraform init -input=false
