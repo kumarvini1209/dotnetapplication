@@ -69,7 +69,7 @@ jobs:
 
       - name: Check AWS role configuration
         env:
-          AWS_ROLE_TO_ASSUME: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          AWS_ROLE_TO_ASSUME: ${{ vars.AWS_ROLE_TO_ASSUME || secrets.AWS_ROLE_TO_ASSUME }}
         run: |
           if [ -z "$AWS_ROLE_TO_ASSUME" ]; then
             echo "AWS_ROLE_TO_ASSUME is missing from the terraform environment variables."
@@ -81,7 +81,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME || secrets.AWS_ROLE_TO_ASSUME }}
           role-session-name: GitHubActionsTerraform
 
       - name: Initialize Terraform
