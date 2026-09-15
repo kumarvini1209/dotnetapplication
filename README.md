@@ -51,4 +51,6 @@ Build and push the backend image to the `api_repository_url` Terraform output be
 
 The EKS cluster and worker nodes are provisioned for the next Kubernetes integration step. Kubernetes Deployment, Service, Ingress, and ConfigMap manifests are intentionally not included yet.
 
-The GitHub Actions workflow can run `terraform apply` manually after the plan succeeds. Configure a GitHub environment named `terraform-apply` with required reviewers before using it. The current Terraform configuration does not yet define a remote state backend; add an S3 backend with locking before using repeated or production applies.
+The GitHub Actions workflow can run `terraform apply` manually after the plan succeeds. Configure a GitHub environment named `terraform-apply` with required reviewers before using it. Terraform state is stored in the encrypted, versioned S3 bucket `catalog-service-terraform-state-487509570252` with S3 locking. The workflow bootstraps this bucket before `terraform init`.
+
+If AWS resources were created by an earlier failed run before remote state was enabled, they are not automatically in the new state file. Import those existing resources once, or remove the partial deployment, before applying again; otherwise Terraform will report `AlreadyExists` errors.
